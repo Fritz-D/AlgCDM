@@ -1,0 +1,55 @@
+Algorithms for Collective Decision Making
+1
+a
+Dynamic programming via a table. Rows are items, columns are costs. Construct row-wise from the top.
+Each cell (x,y) corresponds to the same problem using only the x first project and budget of y.
+For each row, the corresponding project has cost and utility c, u.
+For each cell (x,y), consider cells (x-1, y) and (x-1, y-c). The decision of taking the current project can be considered a choice between these cells. If the current project is worth it, the solution is to take it and to resolve the rest of the budget dynamically, corresponding to cell (x-1, y-c). If not, the current project is ignored and the rest of the budget is dynamically resolved, corresponding to cell (x-1, y). Therefore, the value of cell (x,y) is max(value(x-1,y), u+value(x-1,y-c)).
+When the table is done, we can calculate backwards from the bottom right corner to obtain the set of projects with maximum utility.
+
+b
+An optimal solution incorporating the smallest point always exists, since any the smallest point in any optimal solution not incorporating the globally smallest point may be exchanged for the globally smallest point without loss.
+Therefore, we start from that smallest point. We formulate a decision problem: for a distance t, can k points be selected that are more than t distant by iterating over points? Then, we binary search over possible distances within [0, 1]. If less than k points are produced, we move the upper limit down. If more than k points are produced, we move the lower limit up. As the binary search is on real numbers, we have to define a stop condition, which occurrs if the sets of points produced by the lower and upper limit of the binary search are equal.
+ 
+Assume this algorithm produces a set of k points with a lower minimal distance t than the optimal tmax.
+Since this implies two different sets of points, tmax must lay outside of the binary search bounds.
+Therefore, there was a step where for a threshold t < tmax, k points could not be found.
+Therefore, with a threshold t=tmax, k points also cannot be found.
+Therefore, this assumption is self-contradictory, and the algorithm is correct.
+
+
+
+2
+a
+Given an instance of VC, replace all edges (x,y) with cycles by constructing a graph with nodes x, y, e and edges (x,y), (y,e), (e,x). 
+If there is an FVS of size k on this graph, an analogous VC of size k exists in the original graph, as each original edge now corresponds to a small cycle.
+If there is a VC of size k on the original graph, the correspondent set of nodes on the new graph is a FVS: cycles including a constructed node for edge (x,y) are covered because they must enter through y and leave through x, and either x or y are in the VC because edge (x,y) exists. Cycles consisting solely of edges in the original graph are covered, as for any given such edge (x,y) either x or y must be in the VC.
+
+b
+We build circuits. Each variable x turns into a circuit of two nodes v_x and v_nx connected by an edge. Each clause a or b or c turns into three nodes v_a v_b v_c connected by edges. Nodes in the variable circuits are connected to their corresponding nodes in the clause circuit. We run VC with k = v + 2c, i.e. one node per variable circuit and two nodes per clause circuit may be picked.
+If the clauses are satisfiable, consider a solution to them. Then form a VC by picking nodes in variable circuits that correspond to truth or falsehood of variables, one per variable circuit, covering all variable circuit edges. For each clause circuit, consider one node that corresponds to a true variable, and pick the other two, covering the edges within the clause circuit. In doing so, the edges between variable and clause circuits are covered also. This forms a subset of k = v + 2c nodes.
+If there is a vertex cover, construction of the circuits implies it must have picked exactly one node per variable circuit and exactly two per clause circuit to cover all edges within circuits. Therefore, for each clause circuit, there must be at least one edge from a clause circuit node to a variable circuit node covered by the variable circuit, corresponding to fulfillment of said clause.
+
+
+
+3
+a
+Decision Problem: 
+given a set V
+and a set of subsets of V C = {C1,C2 ... Cn}, Ci within V 
+and integers k, n
+does a subset W of C exist such that
+|W| = k
+n <= |{v in V | exists Ci in W where v in Ci }|
+
+Complexity wise:
+This problem is known as maximum coverage, set cover can be reduced to maximum coverage by solving an instance of maximum coverage with n = |V| - set coverage is NP Hard, therefore maximum coverage is NP Hard.
+NP-hardness of set coverage can be shown by reducing vertex cover to set cover.
+For an instance of vertex cover, edges are numbered and each node is translated to a subset of edges containing the edges incident to that node. Then, a solution of this set cover problem corresponds to a set of nodes which form a vertex cover.
+
+b
+maximize 		sum of yj for ej in E
+subject to 		sum of xi <= k
+				sum of xi for Si in S where ej in Si >= yj
+				yj in {0, 1}
+				xi in {0, 1}
