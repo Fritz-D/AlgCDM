@@ -1,0 +1,1 @@
+Completed assignments for the 2024/25 Winter Semester HPI course 'Algorithms for Collective Decision Making', Group F
